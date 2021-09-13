@@ -94,7 +94,7 @@ always @ (posedge clk) begin
         g <= 4'b0000;
     end
 
-    2'b01: begin
+    2'b01: begin    // Green purp alt
         if (HS_ctr > HSYNC_DISP_START && HS_ctr < HSYNC_DISP_END) begin
             if (HS_ctr[6]) begin
                 r <= 4'b0000;
@@ -108,7 +108,7 @@ always @ (posedge clk) begin
         end
     end
 
-    2'b10: begin
+    2'b10: begin    // Red box
         if (HS_ctr > HSYNC_DISP_END - 64 && VS_ctr > VS_DISP_END - 64) begin
             r <= 4'b1000;
             b <= 4'b0000;
@@ -120,7 +120,7 @@ always @ (posedge clk) begin
         end
     end
 
-    2'b11: begin
+    2'b11: begin    // White line
         if (HS_ctr > HSYNC_DISP_END - 16) begin
             r <= 4'b1000;
             b <= 4'b1000;
