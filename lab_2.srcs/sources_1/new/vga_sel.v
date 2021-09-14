@@ -84,51 +84,53 @@ always @ (posedge clk) begin
     end else begin
         HS_ctr <= HS_ctr + 1;
     end
+end
 
-    // Assign colors for current gun loc
+// Assign colors for current gun loc
+always @ (sw) begin
     case (sw)
 
     2'b00: begin    // Blue screen
-        r <= 4'b0000;
-        b <= 4'b1000;
-        g <= 4'b0000;
+        r = 4'b0000;
+        b = 4'b1000;
+        g = 4'b0000;
     end
 
     2'b01: begin    // Green purp alt
         if (HS_ctr > HSYNC_DISP_START && HS_ctr < HSYNC_DISP_END) begin
             if (HS_ctr[6]) begin
-                r <= 4'b0000;
-                b <= 4'b0000;
-                g <= 4'b1000;
+                r = 4'b0000;
+                b = 4'b0000;
+                g = 4'b1000;
             end else begin
-                r <= 4'b1000;
-                b <= 4'b1000;
-                g <= 4'b0000; 
+                r = 4'b1000;
+                b = 4'b1000;
+                g = 4'b0000; 
             end
         end
     end
 
     2'b10: begin    // Red box
         if (HS_ctr > HSYNC_DISP_END - 64 && VS_ctr > VS_DISP_END - 64) begin
-            r <= 4'b1000;
-            b <= 4'b0000;
-            g <= 4'b0000; 
+            r = 4'b1000;
+            b = 4'b0000;
+            g = 4'b0000; 
         end else begin
-            r <= 4'b0000;
-            b <= 4'b0000;
-            g <= 4'b0000;   
+            r = 4'b0000;
+            b = 4'b0000;
+            g = 4'b0000;   
         end
     end
 
     2'b11: begin    // White line
         if (HS_ctr > HSYNC_DISP_END - 16) begin
-            r <= 4'b1000;
-            b <= 4'b1000;
-            g <= 4'b1000;
+            r = 4'b1000;
+            b = 4'b1000;
+            g = 4'b1000;
         end else begin
-            r <= 4'b0000;
-            b <= 4'b0000;
-            g <= 4'b0000;
+            r = 4'b0000;
+            b = 4'b0000;
+            g = 4'b0000;
         end
     end
 
