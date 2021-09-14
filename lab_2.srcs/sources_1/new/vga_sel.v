@@ -23,11 +23,13 @@
 module vga_sel(
     input [1:0] sw,
     input clk,
+    input button,
+    input reset,
     output [3:0] r,
     output [3:0] g,
     output [3:0] b,
     output HS,
-    output VS,
+    output VS
     );
     
 // Basic structure:
@@ -66,6 +68,14 @@ parameter HSYNC_DISP_END = HSYNC_DISP_START + HSYNC_DISP;
 reg [15:0] VS_ctr = 0;
 reg [15:0] HS_ctr = 0;
 
+reg [3:0] red_reg;
+reg [3:0] green_reg;
+reg [3:0] blue_reg;
+
+assign r = red_reg;
+assign g = green_reg;
+assign b = blue_reg;
+
 // Configure sync pulse
 assign VS = (VS_ctr > 0 && VS_ctr < VSYNC_PULSE_WIDTH) ? 0 : 1;
 assign HS = (HS_ctr > 0 && HS_ctr < HSYNC_PULSE_WIDTH) ? 0 : 1;
@@ -73,13 +83,13 @@ assign HS = (HS_ctr > 0 && HS_ctr < HSYNC_PULSE_WIDTH) ? 0 : 1;
 always @ (posedge clk) begin
 
     // Update counters
-    if (VS_ctr > VSYNC_PULSE) begin
+    if (VS_ctr > VSYNC_PULSE || reset) begin
         VS_ctr <= 0;
     end else begin
         VS_ctr <= VS_ctr + 1;
     end
 
-    if (HS_ctr > HSYNC_PULSE) begin
+    if (HS_ctr > HSYNC_PULSE || reset) begin
         HS_ctr <= 0;
     end else begin
         HS_ctr <= HS_ctr + 1;
@@ -90,52 +100,51 @@ end
 always @ (sw) begin
     case (sw)
 
-    2'b00: begin    // Blue screen
-        r = 4'b0000;
-        b = 4'b1000;
-        g = 4'b0000;
-    end
-
-    2'b01: begin    // Green purp alt
-        if (HS_ctr > HSYNC_DISP_START && HS_ctr < HSYNC_DISP_END) begin
-            if (HS_ctr[6]) begin
-                r = 4'b0000;
-                b = 4'b0000;
-                g = 4'b1000;
-            end else begin
-                r = 4'b1000;
-                b = 4'b1000;
-                g = 4'b0000; 
+        2'b00: begin    // Blue screen
+            red_reg = 4'b0000;
+            blue_reg = 4'b1000;
+            green_reg = 4'b0000;
+        end
+    
+        2'b01: begin    // Green purp alt
+            if (HS_ctr > HSYNC_DISP_START && HS_ctr < HSYNC_DISP_END) begin
+                if (HS_ctr[6]) begin
+                    red_reg = 4'b0000;
+                    blue_reg = 4'b0000;
+                    green_reg = 4'b1000;
+                end else begin
+                    red_reg = 4'b1000;
+                    blue_reg = 4'b1000;
+                    green_reg = 4'b0000; 
+                end
             end
         end
-    end
-
-    2'b10: begin    // Red box
-        if (HS_ctr > HSYNC_DISP_END - 64 && VS_ctr > VS_DISP_END - 64) begin
-            r = 4'b1000;
-            b = 4'b0000;
-            g = 4'b0000; 
-        end else begin
-            r = 4'b0000;
-            b = 4'b0000;
-            g = 4'b0000;   
+    
+        2'b10: begin    // Red box
+            if (HS_ctr > HSYNC_DISP_END - 64 && VS_ctr > VSYNC_DISP_END - 64) begin
+                red_reg = 4'b1000;
+                blue_reg = 4'b0000;
+                green_reg = 4'b0000; 
+            end else begin
+                red_reg = 4'b0000;
+                blue_reg = 4'b0000;
+                green_reg = 4'b0000;   
+            end
         end
-    end
-
-    2'b11: begin    // White line
-        if (HS_ctr > HSYNC_DISP_END - 16) begin
-            r = 4'b1000;
-            b = 4'b1000;
-            g = 4'b1000;
-        end else begin
-            r = 4'b0000;
-            b = 4'b0000;
-            g = 4'b0000;
+    
+        2'b11: begin    // White line
+            if (HS_ctr > HSYNC_DISP_END - 16) begin
+                red_reg = 4'b1000;
+                blue_reg = 4'b1000;
+                green_reg = 4'b1000;
+            end else begin
+                red_reg = 4'b0000;
+                blue_reg = 4'b0000;
+                green_reg = 4'b0000;
+            end
         end
-    end
-
+    endcase
 end
-
 /* Display options
     - Blue display
         - Set color to blue

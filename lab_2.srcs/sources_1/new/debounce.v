@@ -29,14 +29,17 @@ module debounce(
     
     parameter TERM_COUNT = 18'd250_000;
     reg [18:0] count = 4'b0;
-    reg last_in = in;
+    reg last_in;
+    reg out_reg;
+    
+    assign out = out_reg;
     
     always @ (posedge clk) begin
         
         // Update state of last input
         last_in <= in;
         
-        if (!reset == 1'b0 | last_in != in) begin
+        if (reset == 1'b0 | last_in != in) begin
             
             // Reset count without updating output signal
             count <= 18'b0;
@@ -46,10 +49,10 @@ module debounce(
             
                 // Reset couunt and update output signal
                 count <= 18'b0;
-                out <= in;
+                out_reg <= in;
             end
             else begin
-                count <= count_out + 18'b1;
+                count <= count + 18'b1;
             end
         end
     end

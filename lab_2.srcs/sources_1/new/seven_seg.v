@@ -16,7 +16,12 @@ module seven_seg(
     reg [3:0] state = 2'd0;
     reg [3:0] disp_value;
     
-    assign an = (!reset) ? 4'b1111 : an; 
+    always @ (reset) begin
+        if (!reset) begin
+            an = 4'b1111;
+        end
+    end 
+//    assign an = (!reset) ? 4'b1111 : an; 
     
     always @ (posedge clk) 
         case (state) 
